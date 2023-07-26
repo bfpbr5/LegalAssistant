@@ -14,8 +14,10 @@ if function == "Case analysis":
     case_text = st.text_area("Enter the details of your case:")
     if st.button("Analyze Case"):
         # result = case_analyzer.analyze(case_text)
-        result = case_analyzer.analyze(case_text)
+        # result = case_analyzer.analyze(case_text)
+        result = "1. 在这个案件中……\n\n2. 请求权基础主要是……\n\n3. 在这个案件中，原告的诉讼请求可能包括……\n\n4. 尽管提供的信息相对完整，但仍需要进一步澄清一些问题……"
         result_parts = result.split("\n\n")
+        result_parts = [part.split('. ', 1)[-1] for part in result_parts]
         part_names = ["法律关系分析", "请求权基础", "诉讼请求", "待澄清问题"]
         for i in range(4):
             st.subheader(part_names[i])
