@@ -1,6 +1,4 @@
 import streamlit as st
-# import openai
-# from pinecone import PineconeClient
 from ai_unit import CaseAnalyzer, EvidenceAnalyzer, SimilarCaseFinder, LitigationStrategist
 
 case_analyzer = CaseAnalyzer()
@@ -17,7 +15,11 @@ if function == "Case analysis":
     if st.button("Analyze Case"):
         # result = case_analyzer.analyze(case_text)
         result = case_analyzer.analyze(case_text)
-        st.write(result)
+        result_parts = result.split("\n\n")
+        part_names = ["法律关系分析", "请求权基础", "诉讼请求", "待澄清问题"]
+        for i in range(4):
+            st.subheader(part_names[i])
+            st.write(result_parts[i])
 
 elif function == "Evidence analysis":
     st.title("Evidence Analysis")
