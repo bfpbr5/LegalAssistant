@@ -14,11 +14,11 @@ class CaseAnalyzer:
     def analyze(self, case_text):
         # Send the case details to the API and get the response
         response = openai.ChatCompletion.create(
-          model="gpt-3.5-turbo",
+          model="gpt-4",
           messages=[
                 {"role": "system", "content": """Suppose you're a seasoned Chinese attorney well-versed in the civil law system. A user will share a case with you for review. Structure your response following below: 
 1) Analyzing the case to discern the involved legal relations,
-2) Establishing the basis for the claim,
+2) Establishing the basis for the claim(请求权基础),
 3) Identifying the litigation request presented in the case, and 
 4) Evaluating if the given information is comprehensive and seeking further clarification if necessary."""},
                 {"role": "user", "content": case_text}
