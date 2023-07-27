@@ -17,16 +17,16 @@ if st.sidebar.button("Add a new case"):
     case_name = st.sidebar.text_input("Enter case name:")
     case_date = st.sidebar.date_input("Enter case date:")
     st.session_state["cases"].append({"name": case_name, "date": case_date, "steps": {}})
-    st.session_state["current_case"] = len(st.session_state["cases"]) - 1
+    st.session_state["current_case"] = int(len(st.session_state["cases"]) - 1)
 
 # Allow user to select a case
 case_names = [case["name"] for case in st.session_state["cases"]] if st.session_state["cases"] else ["No cases"]
-case_index = st.sidebar.selectbox("Select a case", case_names, index=st.session_state["current_case"])
+case_index = st.sidebar.selectbox("Select a case", case_names, index=int(st.session_state["current_case"]) if st.session_state["current_case"] is not None else 0)
 if case_index != st.session_state["current_case"]:
     st.session_state["current_case"] = case_index
 
 # Run the appropriate step based on the current state of the case
-case = st.session_state["cases"][st.session_state["current_case"]]
+case = st.session_state["cases"][int(st.session_state["current_case"])]
 if "step" not in case:
     case["step"] = 1
 
