@@ -28,6 +28,8 @@ Please structure your response using a format similar to '1.' to clearly disting
         )
         # Return the assistant's reply
         return response['choices'][0]['message']['content']
+    
+    # def chat(self, history, )
 
 
 class EvidenceAnalyzer:
