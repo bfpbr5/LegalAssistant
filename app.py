@@ -2,7 +2,7 @@ import streamlit as st
 from ai_unit import CaseAnalyzer, EvidenceAnalyzer, SimilarCaseFinder, LitigationStrategist
 
 case_analyzer = CaseAnalyzer()
-# evidence_analyzer = EvidenceAnalyzer()
+evidence_analyzer = EvidenceAnalyzer()
 # similar_case_finder = SimilarCaseFinder()
 # litigation_strategist = LitigationStrategist()
 
@@ -21,6 +21,7 @@ if function == "Case analysis":
         for i in range(4):
             st.subheader(part_names[i])
             st.write(result_parts[i])
+        st.caption("请在分析结果满意后在侧边栏选择下一个模块继续分析.")
         if st.button("Next: Evidence Analysis"):
             function = "Evidence analysis"
 
@@ -45,6 +46,7 @@ elif function == "Evidence analysis":
             # result = evidence_analyzer.analyze_text(evidence_text)
             result = "Analyzed Text Evidence"
             st.write(result)
+    st.caption("请在分析结果满意后在侧边栏选择下一个模块继续分析.")
     if st.button("Next: Similar Case Analysis"):
         function = "Similar case analysis"
 
