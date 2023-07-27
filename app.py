@@ -7,10 +7,10 @@ similar_case_finder = SimilarCaseFinder()
 litigation_strategist = LitigationStrategist()
 
 if "cases" not in st.session_state:
-    st.session_state["cases"] = []
+    st.session_state["cases"] = [{"name": "Initial Case", "date": st.date_input('Please select a date', value=None), "steps": {}}]
 
 if "current_case" not in st.session_state:
-    st.session_state["current_case"] = None
+    st.session_state["current_case"] = 0
 
 # Allow user to add a new case
 if st.sidebar.button("Add a new case"):
@@ -20,7 +20,7 @@ if st.sidebar.button("Add a new case"):
     st.session_state["current_case"] = len(st.session_state["cases"]) - 1
 
 # Allow user to select a case
-case_names = [case["name"] for case in st.session_state["cases"]]
+case_names = [case["name"] for case in st.session_state["cases"]] if st.session_state["cases"] else ["No cases"]
 case_index = st.sidebar.selectbox("Select a case", case_names, index=st.session_state["current_case"])
 if case_index != st.session_state["current_case"]:
     st.session_state["current_case"] = case_index
