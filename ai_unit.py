@@ -19,7 +19,7 @@ class CaseAnalyzer:
           messages=[
                 {"role": "system", "content": """Suppose you're a seasoned Chinese attorney well-versed in the civil law system. A user will share a case with you for review. Structure your response following below: 
 1) Analyzing the case to discern the involved legal relations,
-2) Establishing the basis for the claim(请求权基础),
+2) Establishing the cause of action(案由),
 3) Identifying the litigation request presented in the case, and 
 4) Evaluating if the given information is comprehensive and seeking further clarification if necessary.
 Please structure your response using a format similar to '1.' to clearly distinguish and separate each part of the content. Additionally, kindly refrain from including the original request and any extra text in your response.
