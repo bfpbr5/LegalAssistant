@@ -41,7 +41,65 @@ Finally, always answer in Chinese."""},
         # Return the assistant's reply
         return response['choices'][0]['message']['content']
     
-    # def chat(self, history, )
+    def split_analysis(self, response):
+        result_parts = response.split("\n\n")
+        result_parts = [part.split('. ', 1)[-1] for part in result_parts]
+        self.context = result_parts[0]
+        self.cause = result_parts[1]
+        self.claim = result_parts[2]
+        self.questions = result_parts[3]
+        return result_parts
+    
+    # def chat(self, history, para):
+    #     # Extracting history and parameters from the input
+    #     history_need_input, paras_need_input = history, para
+
+    #     # Call the API
+    #     with st.spinner("🤔"):
+    #         try:
+    #             r = openai.ChatCompletion.create(model=st.session_state["select_model"], messages=history_need_input,
+    #                                             stream=True,
+    #                                             **paras_need_input)
+    #         except (FileNotFoundError, KeyError):
+    #             st.error("OpenAI API Key is missing. Please configure it in Secrets after copying the project, or configure it temporarily in the model options.")
+    #         except openai.error.AuthenticationError:
+    #             st.error("Invalid OpenAI API Key.")
+    #         except openai.error.APIConnectionError as e:
+    #             st.error("Connection timed out, please try again. Error: \n" + str(e.args[0]))
+    #         except openai.error.InvalidRequestError as e:   
+    #             st.error("Invalid request, please try again. Error: \n" + str(e.args[0]))
+    #         except openai.error.RateLimitError as e:
+    #             st.error("Request limit exceeded. Error: \n" + str(e.args[0]))
+    #         else:
+    #             st.session_state["chat_of_r"] = function
+    #             st.session_state["r"] = r
+    #             st.experimental_rerun()
+
+    #     if ("r" in st.session_state) and (function == st.session_state["chat_of_r"]):
+    #         try:
+    #             for e in st.session_state["r"]:
+    #                 if "content" in e["choices"][0]["delta"]:
+    #                     st.session_state[function + 'report'] += e["choices"][0]["delta"]["content"]
+    #                     st.write(st.session_state['pre_user_input_content'])
+    #                     st.write(st.session_state[function + 'report'])
+    #         except ChunkedEncodingError:
+    #             st.error("Poor network condition, please refresh the page and try again.")
+    #         # Handle 'stop' situation
+    #         except Exception:
+    #             pass
+    #         else:
+    #             # Save content
+    #             st.session_state["history"].append(
+    #                 {"role": "user", "content": st.session_state['pre_user_input_content']})
+    #             st.session_state["history"].append(
+    #                 {"role": "assistant", "content": st.session_state[function + 'report']})
+    #         # Handle when user clicks 'stop' on the webpage, ss may be temporarily empty under certain circumstances
+    #         if function + 'report' in st.session_state:
+    #             st.session_state.pop(function + 'report')
+    #         if 'r' in st.session_state:
+    #             st.session_state.pop("r")
+    #             st.experimental_rerun()
+
 
 
 class EvidenceAnalyzer:
