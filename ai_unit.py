@@ -39,7 +39,8 @@ Finally, always answer in Chinese."""},
         temperature=0.1
         )
         # Return the assistant's reply
-        return response['choices'][0]['message']['content']
+        self.full_analysis = response['choices'][0]['message']['content']
+        return self.full_analysis
     
     def split_analysis(self, response):
         result_parts = response.split("\n\n")
