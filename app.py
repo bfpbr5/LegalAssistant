@@ -22,7 +22,7 @@ if submitted:
 # Allow user to select a case
 case_names = [case["name"] for case in st.session_state["cases"]] if st.session_state["cases"] else ["No cases"]
 case_index = st.sidebar.selectbox("Select a case", case_names, index=int(st.session_state["current_case"]) if st.session_state["current_case"] is not None else 0)
-if case_names[case_index] != st.session_state["cases"][st.session_state["current_case"]]["name"]:
+if case_index != st.session_state["current_case"]:
     st.session_state["current_case"] = case_names.index(case_index)
 
 # Run the appropriate step based on the current state of the case
