@@ -22,7 +22,7 @@ if st.sidebar.button("Add a new case"):
 
 # Allow user to select a case
 case_names = [case["name"] for case in st.session_state["cases"]] if st.session_state["cases"] else ["No cases"]
-case_index = st.sidebar.selectbox("Select a case", case_names, index=int(st.session_state["current_case"]) if st.session_state["current_case"] is not None else 0)
+case_index = st.sidebar.selectbox("Select a case", case_names, index=int(st.session_state["current_case"]) if st.session_state["current_case"] is not None else 0, format_func=lambda x: case_names[x])
 if case_index != st.session_state["current_case"]:
     st.session_state["current_case"] = case_index
 
