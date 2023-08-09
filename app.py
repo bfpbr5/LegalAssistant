@@ -9,6 +9,16 @@ litigation_strategist = LitigationStrategist()
 # Initialize session state
 st.session_state.setdefault("cases", [{"name": "Initial Case", "date": None, "steps": {}}])
 st.session_state.setdefault("current_case", 0)
+st.session_state.setdefault("analysis_results", {})
+
+def store_analysis_results(case_id, module_name, analysis_parts):
+    if case_id not in st.session_state.analysis_results:
+        st.session_state.analysis_results[case_id] = {}
+    st.session_state.analysis_results[case_id][module_name] = analysis_parts
+
+def retrieve_analysis_results(case_id, module_name):
+    return st.session_state.analysis_results.get(case_id, {}).get(module_name, {})
+
 
 with st.sidebar.form("Add case form"):
     case_name = st.text_input("Enter case name:")
@@ -38,6 +48,14 @@ if case["step"] >= 1:
             # result = case_analyzer.analyze(case_text)
             result = "1. 在这个案件中……\n\n2. 请求权基础主要是……\n\n3. 在这个案件中，原告的诉讼请求可能包括……\n\n4. 尽管提供的信息相对完整，但仍需要进一步澄清一些问题……"
             result_parts = case_analyzer.split_analysis(result)
+            case_id = case["name"] # Assuming the case name or ID is used to identify the case
+            store_analysis_results(case_id, "Case Analysis", {
+                "Case Context": result_parts[0],
+                "Claim Basis": result_parts[1],
+                "Plaintiff's Claims": result_parts[2],
+                "Additional Questions": result_parts[3]
+            })
+
             part_names = ["Case Context", "Claim Basis", "Plaintiff's Claims", "Additional Questions"]
             for i in range(4):
                 st.subheader(part_names[i])
