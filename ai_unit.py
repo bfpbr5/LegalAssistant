@@ -6,6 +6,11 @@ import streamlit as st
 promptlayer.api_key = "pl_6693b063dd1e5bc294f4fb3e18820039"
 openai = promptlayer.openai
 openai.api_key = st.secrets["openai"]["api_key"]
+# color_prefix_by_role = {
+# "system": "\033[0m",  # gray
+# "user": "\033[0m",  # gray
+# "assistant": "\033[92m",  # green
+# }
 
 class CaseAnalyzer:
     def __init__(self):
@@ -50,58 +55,6 @@ Finally, always answer in Chinese."""},
         self.claim = result_parts[2]
         self.questions = result_parts[3]
         return result_parts
-    
-    # def chat(self, history, para):
-    #     # Extracting history and parameters from the input
-    #     history_need_input, paras_need_input = history, para
-
-    #     # Call the API
-    #     with st.spinner("🤔"):
-    #         try:
-    #             r = openai.ChatCompletion.create(model=st.session_state["select_model"], messages=history_need_input,
-    #                                             stream=True,
-    #                                             **paras_need_input)
-    #         except (FileNotFoundError, KeyError):
-    #             st.error("OpenAI API Key is missing. Please configure it in Secrets after copying the project, or configure it temporarily in the model options.")
-    #         except openai.error.AuthenticationError:
-    #             st.error("Invalid OpenAI API Key.")
-    #         except openai.error.APIConnectionError as e:
-    #             st.error("Connection timed out, please try again. Error: \n" + str(e.args[0]))
-    #         except openai.error.InvalidRequestError as e:   
-    #             st.error("Invalid request, please try again. Error: \n" + str(e.args[0]))
-    #         except openai.error.RateLimitError as e:
-    #             st.error("Request limit exceeded. Error: \n" + str(e.args[0]))
-    #         else:
-    #             st.session_state["chat_of_r"] = function
-    #             st.session_state["r"] = r
-    #             st.experimental_rerun()
-
-    #     if ("r" in st.session_state) and (function == st.session_state["chat_of_r"]):
-    #         try:
-    #             for e in st.session_state["r"]:
-    #                 if "content" in e["choices"][0]["delta"]:
-    #                     st.session_state[function + 'report'] += e["choices"][0]["delta"]["content"]
-    #                     st.write(st.session_state['pre_user_input_content'])
-    #                     st.write(st.session_state[function + 'report'])
-    #         except ChunkedEncodingError:
-    #             st.error("Poor network condition, please refresh the page and try again.")
-    #         # Handle 'stop' situation
-    #         except Exception:
-    #             pass
-    #         else:
-    #             # Save content
-    #             st.session_state["history"].append(
-    #                 {"role": "user", "content": st.session_state['pre_user_input_content']})
-    #             st.session_state["history"].append(
-    #                 {"role": "assistant", "content": st.session_state[function + 'report']})
-    #         # Handle when user clicks 'stop' on the webpage, ss may be temporarily empty under certain circumstances
-    #         if function + 'report' in st.session_state:
-    #             st.session_state.pop(function + 'report')
-    #         if 'r' in st.session_state:
-    #             st.session_state.pop("r")
-    #             st.experimental_rerun()
-
-
 
 class EvidenceAnalyzer:
     def __init__(self):
@@ -148,3 +101,90 @@ class LitigationStrategist:
         )
         # Return the assistant's reply
         return response['choices'][0]['message']['content']
+    
+class Chatbot:
+    def __init__(self, case_id, model="gpt-4"):
+        self.model = model
+        self.case_id = case_id
+        self.initialize_conversation()
+
+    def initialize_conversation(self):
+        # Check if a conversation history exists for the given case
+        for case in st.session_state["cases"]:
+            if case["name"] == self.case_id:
+                if "conversation" not in case or not case["conversation"]:
+                    # If not, initialize the conversation
+                    case["conversation"] = [
+                        {
+                        "role": "system",
+                        "content": """
+You're a seasoned Chinese attorney well-versed in the civil law system. A user has shared a case with you for review. 
+Your task is:
+1. to clarify the case for the user and provide an accurate analysis based on their thoughts.
+2. When user asks for calculation, always provide detailed and accurate calculation steps before giving the answer.
+3. Ask for clarification if a user request is ambiguous.
+4. not to answer any off-topic questions.
+"""
+                    }
+                ])
+                break
+
+    def add_user_message(self, thoughts, analysis_data):
+        content_parts = [f"My thoughts: {thoughts}"]
+
+        for module_name, module_data in analysis_data.items():
+            for key, value in module_data.items():
+                content_parts.append(f"The {key}: {value}")
+
+        content = ". ".join(content_parts)
+
+        # Find the case by name and append the user message to the conversation
+        for case in st.session_state["cases"]:
+            if case["name"] == self.case_id:
+                case["conversation"].append({
+                    "role": "user",
+                    "content": content
+                })
+                break
+
+    def get_bot_response(self):
+        # Retrieve the current conversation for the given case
+        conversation = []
+        for case in st.session_state["cases"]:
+            if case["name"] == self.case_id:
+                conversation = case["conversation"]
+                break
+
+        # Create a response with stream=True
+        response_stream = openai.ChatCompletion.create(
+            model=self.model,
+            messages=conversation,
+            stream=True
+        )
+        bot_message = ""
+        for chunk in response_stream:
+            delta = chunk["choices"][0]["delta"]
+            if "content" in delta:
+                bot_message += delta["content"]
+
+        # Find the case by name and append the bot message to the conversation
+        for case in st.session_state["cases"]:
+            if case["name"] == self.case_id:
+                case["conversation"].append({
+                    "role": "assistant",
+                    "content": bot_message
+                })
+                break
+        return bot_message
+
+    def reset_conversation(self):
+        # Find the case by name and reset the conversation
+        for case in st.session_state["cases"]:
+            if case["name"] == self.case_id:
+                case["conversation"] = [
+                    {
+                        "role": "system",
+                        "content": "You are a helpful assistant."
+                    }
+                ]
+                break
