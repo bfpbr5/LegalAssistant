@@ -103,7 +103,7 @@ class LitigationStrategist:
         return response['choices'][0]['message']['content']
     
 class Chatbot:
-    def __init__(self, case_id, model="gpt-4"):
+    def __init__(self, case_id, model="gpt-3.5-turbo"):
         self.model = model
         self.case_id = case_id
         self.initialize_conversation()
@@ -113,11 +113,11 @@ class Chatbot:
         for case in st.session_state["cases"]:
             if case["name"] == self.case_id:
                 if "conversation" not in case or not case["conversation"]:
-                    # If not, initialize the conversation
+                    # If not, initialize the conversation with the original system message
                     case["conversation"] = [
                         {
-                        "role": "system",
-                        "content": """
+                            "role": "system",
+                            "content": """
 You're a seasoned Chinese attorney well-versed in the civil law system. A user has shared a case with you for review. 
 Your task is:
 1. to clarify the case for the user and provide an accurate analysis based on their thoughts.
@@ -125,16 +125,16 @@ Your task is:
 3. Ask for clarification if a user request is ambiguous.
 4. not to answer any off-topic questions.
 """
-                    }
-                ]
+                        }
+                    ]
                 break
 
-    def add_user_message(self, thoughts, analysis_data):
+    def add_user_message(self, thoughts, analysis_data=None, load_case=False):
         content_parts = [f"My thoughts: {thoughts}"]
-
-        for module_name, module_data in analysis_data.items():
-            for key, value in module_data.items():
-                content_parts.append(f"The {key}: {value}")
+        if load_case and analysis_data:
+            for module_name, module_data in analysis_data.items():
+                for key, value in module_data.items():
+                    content_parts.append(f"The {key}: {value}")
 
         content = ". ".join(content_parts)
 
@@ -177,14 +177,24 @@ Your task is:
                 break
         return bot_message
 
+    # Rest of the methods remain the same
+
     def reset_conversation(self):
-        # Find the case by name and reset the conversation
+        # Find the case by name and reset the conversation to the original system message
         for case in st.session_state["cases"]:
             if case["name"] == self.case_id:
                 case["conversation"] = [
                     {
                         "role": "system",
-                        "content": "You are a helpful assistant."
+                        "content": """
+You're a seasoned Chinese attorney well-versed in the civil law system. A user has shared a case with you for review. 
+Your task is:
+1. to clarify the case for the user and provide an accurate analysis based on their thoughts.
+2. When user asks for calculation, always provide detailed and accurate calculation steps before giving the answer.
+3. Ask for clarification if a user request is ambiguous.
+4. not to answer any off-topic questions.
+"""
                     }
                 ]
                 break
+

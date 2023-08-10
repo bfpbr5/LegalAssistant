@@ -1,5 +1,5 @@
 import streamlit as st
-from ai_unit import CaseAnalyzer, EvidenceAnalyzer, SimilarCaseFinder, LitigationStrategist
+from ai_unit import CaseAnalyzer, EvidenceAnalyzer, SimilarCaseFinder, LitigationStrategist, Chatbot
 
 case_analyzer = CaseAnalyzer()
 evidence_analyzer = EvidenceAnalyzer()
@@ -45,21 +45,35 @@ if sidebar_option == "Case Navigation":
 
 # Chat with Bot
 elif sidebar_option == "Chat with Bot":
-    # Initialize conversation history
-    st.session_state.setdefault("conversation", [])
+    # Retrieve the current case ID
+    current_case_id = st.session_state["cases"][st.session_state["current_case"]]["name"]
+
+    # Initialize chatbot for the current case
+    chatbot = Chatbot(current_case_id)
+
+    # Option to load case details
+    load_case_details = st.sidebar.checkbox("Load Case Details")
     user_input = st.sidebar.text_input("Chat with the bot:")
     if st.sidebar.button("Send"):
-        st.session_state.conversation.append({"user": user_input})
-        # Get the bot's response (replace with actual logic)
-        bot_response = "Hello, how can I help you?" # Your AI model's response here
-        st.session_state.conversation.append({"bot": bot_response})
+        analysis_data = None
+        if load_case_details:
+            analysis_data = retrieve_analysis_results(current_case_id)
+        chatbot.add_user_message(user_input, analysis_data=analysis_data, load_case=load_case_details)
+        bot_response = chatbot.get_bot_response()
 
-    # Display conversation in the main area
-    for message in st.session_state.conversation:
-        if "user" in message:
-            st.sidebar.write(f"You: {message['user']}")
-        else:
-            st.sidebar.write(f"Bot: {message['bot']}")
+        # Reset the "Load Case Details" checkbox
+        load_case_details = False
+
+    # Retrieve and display conversation for the current case
+    for case in st.session_state["cases"]:
+        if case["name"] == current_case_id:
+            conversation = case["conversation"]
+            for message in conversation:
+                if message['role'] == 'user':
+                    st.sidebar.write(f"You: {user_input}")
+                elif message['role'] == 'assistant':
+                    st.sidebar.write(f"Bot: {message['content']}")
+            break
 
 # Run the appropriate step based on the current state of the case
 case = st.session_state["cases"][st.session_state["current_case"]]
