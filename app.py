@@ -7,7 +7,7 @@ similar_case_finder = SimilarCaseFinder()
 litigation_strategist = LitigationStrategist()
 
 # Initialize session state
-st.session_state.setdefault("cases", [{"name": "Initial Case", "date": None, "steps": {}}])
+st.session_state.setdefault("cases", [{"name": "Initial Case", "date": None, "step": 1, "conversation":[]}])
 st.session_state.setdefault("current_case", 0)
 st.session_state.setdefault("analysis_results", {})
 
@@ -16,8 +16,11 @@ def store_analysis_results(case_id, module_name, analysis_parts):
         st.session_state.analysis_results[case_id] = {}
     st.session_state.analysis_results[case_id][module_name] = analysis_parts
 
-def retrieve_analysis_results(case_id, module_name):
-    return st.session_state.analysis_results.get(case_id, {}).get(module_name, {})
+def retrieve_analysis_results(case_id, module_name=None):
+    if module_name:
+        return st.session_state.analysis_results.get(case_id, {}).get(module_name, {})
+    return st.session_state.analysis_results.get(case_id, {})
+    
 
 # Option to switch between case navigation and chatbot
 sidebar_option = st.sidebar.radio("Choose an option:", ("Case Navigation", "Chat with Bot"))
@@ -65,6 +68,7 @@ case.setdefault("step", 1)
 
 # Step 1: Case Analysis
 if case["step"] >= 1:
+
     st.title("Case Analysis")
     case_text = st.text_area("Enter the details of your case:")
     if st.button("Analyze Case"):
@@ -80,12 +84,15 @@ if case["step"] >= 1:
                 "Additional Questions": result_parts[3]
             })
 
+    # Check if the analysis results already exist for this case
+    analysis_results = retrieve_analysis_results(case_id, "Case Analysis")
+    if analysis_results:
         part_names = ["Case Context", "Claim Basis", "Plaintiff's Claims", "Additional Questions"]
-        for i in range(4):
-            st.subheader(part_names[i])
-            st.write(result_parts[i])
-        case["steps"][1] = {"input": case_text, "output": result_parts}
-        case["step"] += 1
+        for part_name, result_part in analysis_results.items():
+            st.subheader(part_name)
+            st.write(result_part)
+    # case["steps"][1] = {"input": case_text, "output": result_parts}
+    case["step"] += 1
 
 # Step 2: Evidence Analysis
 if case["step"] >= 2:
