@@ -126,7 +126,7 @@ Your task is:
 4. not to answer any off-topic questions.
 """
                     }
-                ])
+                ]
                 break
 
     def add_user_message(self, thoughts, analysis_data):
