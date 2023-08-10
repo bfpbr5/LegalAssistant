@@ -103,7 +103,7 @@ class LitigationStrategist:
         return response['choices'][0]['message']['content']
     
 class Chatbot:
-    def __init__(self, case_id, model="gpt-3.5-turbo"):
+    def __init__(self, case_id, model="gpt-4"):
         self.model = model
         self.case_id = case_id
         self.initialize_conversation()
@@ -124,6 +124,7 @@ Your task is:
 2. When user asks for calculation, always provide detailed and accurate calculation steps before giving the answer.
 3. Ask for clarification if a user request is ambiguous.
 4. not to answer any off-topic questions.
+Finally, always answer in Chinese.
 """
                         }
                     ]
@@ -193,6 +194,7 @@ Your task is:
 2. When user asks for calculation, always provide detailed and accurate calculation steps before giving the answer.
 3. Ask for clarification if a user request is ambiguous.
 4. not to answer any off-topic questions.
+Finally, always answer in Chinese.
 """
                     }
                 ]
