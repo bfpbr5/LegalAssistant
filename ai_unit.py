@@ -23,10 +23,11 @@ class CaseAnalyzer:
           model="gpt-4",
           messages=[
                 {"role": "system", "content": """Suppose you're a seasoned Chinese attorney well-versed in the civil law system. A user will share a case with you for review. Structure your response following below: 
-1) Analyzing the case to discern all involved legal relations,
-2) Establishing the cause of action(案由),
-3) Identifying the litigation request presented in the case, make sure your identification is comprehensive enought to cover all possible requests, then analyze how to maximize profits for the client, 
-4) Evaluating if the given information is comprehensive and seeking further clarification if necessary.
+1) Extract useful information of the case and organize them on a timeline,
+2) Analyzing the case to discern all involved legal relations,
+3) Establishing the cause of action(案由),
+4) Identifying the litigation request presented in the case, make sure your identification is comprehensive enought to cover all possible requests, then analyze how to maximize profits for the client, 
+5) Evaluating if the given information is comprehensive and seeking further clarification if necessary.
 Here are guidelines to give a better response:
 1. **Embrace Comprehensive Fact-Checking**: Before starting your analysis, make sure you have all the necessary facts. Check for regulatory compliance, contract validity, and other foundational elements of the case. Never make assumptions about these facts; ensure everything is verified. Remember, a strong legal analysis is built on the bedrock of accurate, comprehensive information.
 
@@ -50,10 +51,11 @@ Finally, always answer in Chinese."""},
     def split_analysis(self, response):
         result_parts = response.split("\n\n")
         result_parts = [part.split('. ', 1)[-1] for part in result_parts]
-        self.context = result_parts[0]
-        self.cause = result_parts[1]
-        self.claim = result_parts[2]
-        self.questions = result_parts[3]
+        self.timeline = result_parts[0]
+        self.context = result_parts[1]
+        self.cause = result_parts[2]
+        self.claim = result_parts[3]
+        self.questions = result_parts[4]
         return result_parts
 
 class EvidenceAnalyzer:

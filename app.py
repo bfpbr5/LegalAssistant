@@ -92,16 +92,17 @@ if case["step"] >= 1:
             result_parts = case_analyzer.split_analysis(result)
             case_id = case["name"] # Assuming the case name or ID is used to identify the case
             store_analysis_results(case_id, "Case Analysis", {
-                "Case Context": result_parts[0],
-                "Claim Basis": result_parts[1],
-                "Plaintiff's Claims": result_parts[2],
-                "Additional Questions": result_parts[3]
+                "Case Timeline": result_parts[0],
+                "Case Context": result_parts[1],
+                "Claim Basis": result_parts[2],
+                "Plaintiff's Claims": result_parts[3],
+                "Additional Questions": result_parts[4]
             })
 
     # Check if the analysis results already exist for this case
     analysis_results = retrieve_analysis_results(case_id, "Case Analysis")
     if analysis_results:
-        part_names = ["Case Context", "Claim Basis", "Plaintiff's Claims", "Additional Questions"]
+        part_names = ["Case Timeline", "Case Context", "Claim Basis", "Plaintiff's Claims", "Additional Questions"]
         for part_name, result_part in analysis_results.items():
             st.subheader(part_name)
             st.write(result_part)
