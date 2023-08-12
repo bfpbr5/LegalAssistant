@@ -26,7 +26,7 @@ class CaseAnalyzer:
 1) Extract useful information of the case and organize them on a timeline,
 2) Analyzing the case to discern all involved legal relations,
 3) Establishing the cause of action(案由),
-4) Identifying the litigation request presented in the case, make sure your identification is comprehensive enought to cover all possible requests, then analyze how to maximize profits for the client, 
+4) Identifying the litigation request presented in the case, make sure your identification is comprehensive enough to cover all possible requests, then analyze how to maximize profits for the client, 
 5) Evaluating if the given information is comprehensive and seeking further clarification if necessary.
 Here are guidelines to give a better response:
 1. **Embrace Comprehensive Fact-Checking**: Before starting your analysis, make sure you have all the necessary facts. Check for regulatory compliance, contract validity, and other foundational elements of the case. Never make assumptions about these facts; ensure everything is verified. Remember, a strong legal analysis is built on the bedrock of accurate, comprehensive information.
