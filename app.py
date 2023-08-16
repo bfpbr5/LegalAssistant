@@ -88,7 +88,7 @@ if case["step"] >= 1:
     if st.button("Analyze Case"):
         with st.spinner('🤔'):
             result = case_analyzer.analyze(case_text)
-            # result = "1. 在这个案件中……\n\n2. 请求权基础主要是……\n\n3. 在这个案件中，原告的诉讼请求可能包括……\n\n4. 尽管提供的信息相对完整，但仍需要进一步澄清一些问题……"
+            # result = "1. 在这个案件中……\n\n2. 请求权基础主要是……\n\n3. 在这个案件中，原告的诉讼请求可能包括……\n\n4. 尽管提供的信息相对完整，但仍需要进一步澄清一些问题……\n\n5."
             result_parts = case_analyzer.split_analysis(result)
             case_id = case["name"] # Assuming the case name or ID is used to identify the case
             store_analysis_results(case_id, "Case Analysis", {
