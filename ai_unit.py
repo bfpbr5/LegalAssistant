@@ -96,8 +96,88 @@ Finally, always answer in Chinese."""},
         result_parts = [item.strip() for item in result_parts if item.strip()]
         return result_parts
     
-    def check_evidence(self.needed_evidence, uploaded_evidence):
-        pass
+    def evidence_query_prompt(self, needed_evidence):
+        # Send the evidence details to the API and get the response
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {
+                "role": "system",
+                "content": "Your task is to recognize key materials needed for the evidence requested by users."
+                },
+                {
+                "role": "user",
+                "content": "买卖合同的原件或复印件，以证明卢永强与义乌市达勒布苏坦贸易商行之间的买卖关系，以及货款的数额和支付条款等关键信息。"
+                },
+                {
+                "role": "assistant",
+                "content": "1. 买卖合同的原件或复印件\n2. 货款的数额\n3. 支付条款"
+                },
+                {
+                "role": "user",
+                "content": needed_evidence
+                }
+            ],
+            temperature=0.1,
+            max_tokens=512,
+            top_p=1,
+            frequency_penalty=0,
+            presence_penalty=0
+        )
+        # Return the assistant's reply
+        self.evid_query = response['choices'][0]['message']['content']
+
+    def organize_ocr(self, raw_text):
+        system_prompt = "你会收到用户通过图像识别提供的一些破碎、不成文的文本片段，这些片段是与一场案件有关的证据。因为文本由 OCR 生成，存在错误识别的字符和短语，并且没有行文结构。你的任务是删去明显无意义的片段，将这些短语和句子整理成有组织的原文段落，回复以“原文：”开头。不要遗漏以下信息："
+        system_prompt = system_prompt + self.evid_query
+        # Send the case details to the API and get the response
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {
+                "role": "system",
+                "content": system_prompt
+                },
+                {
+                "role": "user",
+                "content": "###\n" + raw_text
+                }
+            ],
+            temperature=0.1,
+            max_tokens=1024,
+            top_p=1,
+            frequency_penalty=0,
+            presence_penalty=0
+        )
+        organized_ocr = response['choices'][0]['message']['content']
+        return organized_ocr
+
+    def check_evidence_valid(self, needed_evidence, organized_ocr):
+        system_prompt = "你是一名专业中国律师,你的任务是检查案件材料能否佐证所需证据,给出分析过程和结论"
+        user_prompt = "以下为所需证据:###\n" + needed_evidence + "\n以下为收集到的相关案件材料,其中当事人与信息均与本案件有关:###\n" + organized_ocr
+        # Send the case details to the API and get the response
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[
+                {
+                "role": "system",
+                "content": system_prompt
+                },
+                {
+                "role": "user",
+                "content": user_prompt
+                }
+            ],
+            temperature=0.1,
+            max_tokens=1024,
+            top_p=1,
+            frequency_penalty=0,
+            presence_penalty=0
+        )
+        evidence_analysis = response['choices'][0]['message']['content']
+        return evidence_analysis
+
+
 
 
 
@@ -166,7 +246,8 @@ Finally, always answer in Chinese.
                 break
 
     def add_user_message(self, thoughts, analysis_data=None, load_case=False):
-        content_parts = [f"My thoughts: {thoughts}"]
+
+        content_parts = [f"My thoughts: {thoughts}\n"]
         if load_case and analysis_data:
             for module_name, module_data in analysis_data.items():
                 for key, value in module_data.items():
