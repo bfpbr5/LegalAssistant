@@ -100,40 +100,49 @@ if case["step"] >= 1:
             })
 
     # Check if the analysis results already exist for this case
-    analysis_results = retrieve_analysis_results(case_id, "Case Analysis")
-    if analysis_results:
+    case_analysis_results = retrieve_analysis_results(case_id, "Case Analysis")
+    if case_analysis_results:
         part_names = ["Case Timeline", "Case Context", "Claim Basis", "Plaintiff's Claims", "Additional Questions"]
-        for part_name, result_part in analysis_results.items():
+        for part_name, result_part in case_analysis_results.items():
             st.subheader(part_name)
             st.write(result_part)
+        case["step"] += 1
     # case["steps"][1] = {"input": case_text, "output": result_parts}
-    case["step"] += 1
+    
 
 # Step 2: Evidence Analysis
 if case["step"] >= 2:
-    st.title("Evidence Analysis")
-    evidence_input_method = st.radio("How would you like to provide your evidence?", ["Upload Image", "Upload PDF", "Enter Text"])
-    if evidence_input_method == "Upload Image":
-        evidence_image = st.file_uploader("Upload your evidence image:", type=["png", "jpg", "jpeg"])
-        if st.button("Analyze Image Evidence"):
-            # result = evidence_analyzer.analyze_image(evidence_image)
-            result = "test"
-            st.write(result)
-            case["step"] += 1
-    elif evidence_input_method == "Upload PDF":
-        evidence_pdf = st.file_uploader("Upload your evidence PDF:", type=["pdf"])
-        if st.button("Analyze PDF Evidence"):
-            # result = evidence_analyzer.analyze_pdf(evidence_pdf)
-            result = "test"
-            st.write(result)
-            case["step"] += 1
-    else:
-        evidence_text = st.text_area("Enter your evidence text:")
-        if st.button("Analyze Text Evidence"):
-            # result = evidence_analyzer.analyze_text(evidence_text)
-            result = "test"
-            st.write(result)
-            case["step"] += 1
+    case_analysis_results = retrieve_analysis_results(case_id, "Case Analysis")
+    if st.button("证据分析"):
+        with st.spinner('🤔'):
+            evidence_analysis_results = evidence_analyzer.analyze(case_analysis_results)
+            evidence_analysis_results_list = evidence_analyzer.split_analysis(evidence_analysis_results)
+            st.title("Evidence Analysis")
+            # Text descriptions for the first column
+            descriptions = evidence_analysis_results_list
+            evid_num = 0
+            # Create a container to hold the rows
+            container = st.container()
+
+            # Iterate through the descriptions and create rows with 3 columns
+            for desc in descriptions:
+                # Create a row using beta_columns
+                cols = container.columns(3)
+                
+                # First column: text description
+                cols[0].write(desc)
+                
+                # Second column: text input box
+                input_value = cols[1].text_input(label=f"请输入证据:", value="", key=evid_num)
+                
+                # Third column: You can add additional content here, such as an image or button
+                cols[2].write("Additional content")  # Example content
+                if input_value:
+                    evidence_analyzer.check_evidence(input_value)
+                evid_num += 1
+
+            st.write(evidence_analysis_results)
+
 
 # Step 3: Similar Case Analysis
 if case["step"] >= 3:
