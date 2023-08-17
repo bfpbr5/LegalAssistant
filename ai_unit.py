@@ -1,6 +1,7 @@
 import openai
 import promptlayer
 import streamlit as st
+import re
 # import langchain
 
 promptlayer.api_key = "pl_6693b063dd1e5bc294f4fb3e18820039"
@@ -63,9 +64,41 @@ class EvidenceAnalyzer:
         # Initialize the OpenAI API
         pass
 
-    def analyze(self, evidence_file):
-        # Since GPT-3 doesn't support image analysis, we'll return a placeholder
-        return "GPT-3 does not support image or document analysis."
+    def analyze(self, analysis_results):
+        case_text = "I've listed an overview of my case. Your task is to infer and list what evidence is needed in cases provided.\n\n###\n"
+        for part_name, result_part in analysis_results.items():
+            # Append the part_name as the section title
+            case_text += f"{part_name}\n"
+            # Append the result_part as the section content
+            case_text += f"{result_part}\n\n"
+        case_text += "###"
+        # Send the case details to the API and get the response
+        response = openai.ChatCompletion.create(
+          model="gpt-4",
+          messages=[
+                    {"role": "system", "content": """You're a seasoned Chinese attorney well-versed in the civil law system. Your task is to infer and list what evidence is needed in cases provided by users. 
+Please structure your response using a format begins with '1.' to clearly distinguish and separate each part of the content. Additionally, kindly refrain from including the original request and any extra text in your response.
+Finally, always answer in Chinese."""},
+                    {"role": "user", "content": case_text}
+                ],
+            temperature=0.1,
+            max_tokens=1024
+            )
+        # Return the assistant's reply
+        self.full_analysis = response['choices'][0]['message']['content']
+        return self.full_analysis
+    
+    def split_analysis(self, response):
+        # Use a regular expression to split the text by item numbers
+        result_parts = re.split(r'\d+\.\s+', response)
+        
+        # Remove any empty strings resulting from the split
+        result_parts = [item.strip() for item in result_parts if item.strip()]
+        return result_parts
+    
+    def check_evidence(self.needed_evidence, uploaded_evidence):
+        pass
+
 
 
 class SimilarCaseFinder:
