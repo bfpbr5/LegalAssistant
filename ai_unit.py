@@ -154,7 +154,7 @@ Finally, always answer in Chinese."""},
 
     def check_evidence_valid(self, needed_evidence, organized_ocr):
         system_prompt = "你是一名专业中国律师,你的任务是检查案件材料能否佐证所需证据,给出分析过程和结论"
-        user_prompt = "以下为所需证据:###\n" + needed_evidence + "\n以下为收集到的相关案件材料,其中当事人与信息均与本案件有关:###\n" + organized_ocr
+        user_prompt = "以下为所需证据:###\n" + needed_evidence + "\n###\n以下为收集到的相关案件材料,其中当事人与信息均与本案件有关:###\n" + organized_ocr + "\###"
         # Send the case details to the API and get the response
         response = openai.ChatCompletion.create(
             model="gpt-4",
