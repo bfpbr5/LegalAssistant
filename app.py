@@ -1,5 +1,14 @@
 import streamlit as st
 from ai_unit import CaseAnalyzer, EvidenceAnalyzer, SimilarCaseFinder, LitigationStrategist, Chatbot
+from aip import AipSpeech, AipOcr
+# 设置百度API的参数
+APP_ID = '37863384'
+API_KEY = 'P7G5MoH6A8NuMgdWC2GU1aiN'
+SECRET_KEY = 'EAByZyEt1Gp4HxiKGBgsG9ggKjr4I16F'
+
+# 初始化百度API的客户端
+client_speech = AipSpeech(APP_ID, API_KEY, SECRET_KEY)
+client_ocr = AipOcr(APP_ID, API_KEY, SECRET_KEY)
 
 case_analyzer = CaseAnalyzer()
 evidence_analyzer = EvidenceAnalyzer()
@@ -10,6 +19,12 @@ litigation_strategist = LitigationStrategist()
 st.session_state.setdefault("cases", [{"name": "Initial Case", "date": None, "step": 1, "conversation":[]}])
 st.session_state.setdefault("current_case", 0)
 st.session_state.setdefault("analysis_results", {})
+
+current_case_index = st.session_state.current_case
+current_case = st.session_state.cases[current_case_index]
+# Set default session state for evidence analysis clicked for the current case
+st.session_state.setdefault(f"evidence_analysis_clicked_{current_case_index}", False)
+
 
 def store_analysis_results(case_id, module_name, analysis_parts):
     if case_id not in st.session_state.analysis_results:
@@ -110,38 +125,45 @@ if case["step"] >= 1:
     # case["steps"][1] = {"input": case_text, "output": result_parts}
     
 
-# Step 2: Evidence Analysis
-if case["step"] >= 2:
+if current_case["step"] >= 2:
     case_analysis_results = retrieve_analysis_results(case_id, "Case Analysis")
     if st.button("证据分析"):
+        st.session_state[f"evidence_analysis_clicked_{current_case_index}"] = True
+
+    if st.session_state[f"evidence_analysis_clicked_{current_case_index}"]:
         with st.spinner('🤔'):
             evidence_analysis_results = evidence_analyzer.analyze(case_analysis_results)
             evidence_analysis_results_list = evidence_analyzer.split_analysis(evidence_analysis_results)
             st.title("Evidence Analysis")
-            # Text descriptions for the first column
             descriptions = evidence_analysis_results_list
             evid_num = 0
-            # Create a container to hold the rows
             container = st.container()
 
-            # Iterate through the descriptions and create rows with 3 columns
             for desc in descriptions:
-                # Create a row using beta_columns
                 cols = container.columns(3)
-                
-                # First column: text description
                 cols[0].write(desc)
                 
-                # Second column: text input box
-                input_value = cols[1].text_input(label=f"请输入证据:", value="", key=evid_num)
+                # File uploader for each row in column 2
+                uploaded_files = cols[1].file_uploader(label=f"上传证据文件:", key=evid_num, accept_multiple_files=True)
+                result_content = ''
+                for uploaded_file in uploaded_files:
+                    if uploaded_file:
+                        image_data = uploaded_file.read()
+                        result_ocr = client_ocr.basicGeneral(image_data)
+                        if result_ocr.get('words_result_num') > 0:
+                            for line in result_ocr['words_result']:
+                                result_content += line['words'] + '\n'
+                qry = evidence_analyzer.evidence_query_prompt(desc)
+                org_ocr = evidence_analyzer.organize_ocr(result_content)
+
+                # cols[1].write(org_ocr)  # Display OCR results
                 
-                # Third column: You can add additional content here, such as an image or button
-                cols[2].write("Additional content")  # Example content
-                if input_value:
-                    evidence_analyzer.check_evidence(input_value)
+                verify_result = evidence_analyzer.check_evidence_valid(desc, org_ocr)
+                cols[2].write(verify_result)
+                # evidence_analyzer.check_evidence(result_content)
                 evid_num += 1
 
-            st.write(evidence_analysis_results)
+            # st.write(evidence_analysis_results)
 
 
 # Step 3: Similar Case Analysis
