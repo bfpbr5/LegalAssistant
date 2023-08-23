@@ -35,10 +35,15 @@ def store_analysis_results(case_id, module_name, analysis_parts):
         st.session_state.analysis_results[case_id] = {}
     st.session_state.analysis_results[case_id][module_name] = analysis_parts
 
-def retrieve_analysis_results(case_id, module_name=None):
-    if module_name:
-        return st.session_state.analysis_results.get(case_id, {}).get(module_name, {})
-    return st.session_state.analysis_results.get(case_id, {})
+def retrieve_analysis_results(case_id, module_name=None, ignore_last=False):
+    if ignore_last:
+        if module_name:
+            return (st.session_state.analysis_results.get(case_id, {}).get(module_name, {}))[:-1]
+        return st.session_state.analysis_results.get(case_id, {})
+    else:
+        if module_name:
+            return st.session_state.analysis_results.get(case_id, {}).get(module_name, {})
+        return st.session_state.analysis_results.get(case_id, {})
     
 
 # Option to switch between case navigation and chatbot
@@ -76,7 +81,7 @@ elif sidebar_option == "和 AI 交流":
     if st.sidebar.button("发送"):
         analysis_data = None
         if load_case_details:
-            analysis_data = retrieve_analysis_results(current_case_id)
+            analysis_data = retrieve_analysis_results(current_case_id)[:-1] # remove it later
         chatbot.add_user_message(user_input, analysis_data=analysis_data, load_case=load_case_details)
         bot_response = chatbot.get_bot_response()
 
@@ -91,7 +96,7 @@ elif sidebar_option == "和 AI 交流":
                 if message['role'] == 'user':
                     st.sidebar.write(f"You: {user_input}")
                 elif message['role'] == 'assistant':
-                    st.sidebar.write(f"Bot: {message['content']}")
+                    st.sidebar.write(f"AI: {message['content']}")
             break
 
 # Run the appropriate step based on the current state of the case
@@ -135,12 +140,12 @@ if current_case["step"] >= 2:
         st.session_state[f"evidence_analysis_clicked_{current_case_index}"] = True
 
     if st.session_state[f"evidence_analysis_clicked_{current_case_index}"]:
-        if not st.session_state[f"evidence_analysis_listed_{current_case_index}"]:
+        if not st.session_state.get(f"evidence_analysis_{current_case_index}_evidence_analysis_result_list"):
             with st.spinner('🤔'):
                 evidence_analysis_results = evidence_analyzer.analyze(case_analysis_results)
                 st.session_state[f"evidence_analysis_{current_case_index}_evidence_analysis_result_list"] = evidence_analyzer.split_analysis(evidence_analysis_results)
-                evidence_analysis_results_list = st.session_state[f"evidence_analysis_{current_case_index}_evidence_analysis_result_list"]
                 st.session_state[f"evidence_analysis_listed_{current_case_index}"] = True
+        evidence_analysis_results_list = st.session_state[f"evidence_analysis_{current_case_index}_evidence_analysis_result_list"]
         evid_num = 0
         st.title("证据分析")
         container = st.container()
