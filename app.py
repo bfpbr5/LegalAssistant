@@ -103,8 +103,6 @@ elif sidebar_option == "和 AI 交流":
 case = st.session_state["cases"][st.session_state["current_case"]]
 case_id = case["name"]
 case.setdefault("step", 1)
-for i in range(MAX_EVID):
-    st.session_state.setdefault(f"evidence_analysis_{current_case_index}_{i}_results", None)
 
 # Step 1: Case Analysis
 if case["step"] >= 1:
@@ -161,26 +159,20 @@ if current_case["step"] >= 2:
             if uploaded_files:
                 st.session_state[f"evidence_uploaded_{current_case_index}_{evid_num}"] = True
             if st.session_state[f"evidence_uploaded_{current_case_index}_{evid_num}"]:
-                if not st.session_state.get(f"evidence_analysis_{current_case_index}_{evid_num}_results"):
-                    with st.spinner('🤔'):
+                with st.spinner('🤔'):
                         result_content = ''
                         for uploaded_file in uploaded_files:
                             if uploaded_file:
                                 image_data = uploaded_file.read()
                                 result_ocr = client_ocr.basicGeneral(image_data)
-                                if not result_ocr.get('words_result_num'):
+                                if result_ocr.get('words_result_num'):
                                     for line in result_ocr['words_result']:
                                         result_content += line['words'] + '\n'
                         qry = evidence_analyzer.evidence_query_prompt(desc)
                         org_ocr = evidence_analyzer.organize_ocr(result_content)
+                        
                         verify_result = evidence_analyzer.check_evidence_valid(desc, org_ocr)
-                        st.session_state[f"evidence_analysis_{current_case_index}_{evid_num}_results"] = {
-                            "qry": qry,
-                            "org_ocr": org_ocr,
-                            "verify_result": verify_result
-                        }
-                results = st.session_state[f"evidence_analysis_{current_case_index}_{evid_num}_results"]
-                cols[2].write(results["verify_result"])
+                        cols[2].write(verify_result)
             evid_num += 1
         
 
