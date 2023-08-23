@@ -78,7 +78,7 @@ class EvidenceAnalyzer:
           messages=[
                     {"role": "system", "content": """You're a seasoned Chinese attorney well-versed in the civil law system. Your task is to infer and list what evidence is needed in cases provided by users. 
 Please structure your response using a format begins with '1.' to clearly distinguish and separate each part of the content. Additionally, kindly refrain from including the original request and any extra text in your response.
-Finally, always answer in Chinese."""},
+Do not list more than 10 evidences. Finally, always answer in Chinese."""},
                     {"role": "user", "content": case_text}
                 ],
             temperature=0.1,
