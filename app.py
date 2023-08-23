@@ -168,7 +168,7 @@ if current_case["step"] >= 2:
                             if uploaded_file:
                                 image_data = uploaded_file.read()
                                 result_ocr = client_ocr.basicGeneral(image_data)
-                                if result_ocr.get('words_result_num') > 0:
+                                if not result_ocr.get('words_result_num'):
                                     for line in result_ocr['words_result']:
                                         result_content += line['words'] + '\n'
                         qry = evidence_analyzer.evidence_query_prompt(desc)
