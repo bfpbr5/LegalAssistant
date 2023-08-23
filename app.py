@@ -3,8 +3,8 @@ from ai_unit import CaseAnalyzer, EvidenceAnalyzer, SimilarCaseFinder, Litigatio
 from aip import AipSpeech, AipOcr
 # 设置百度API的参数
 APP_ID = '37863384'
-API_KEY = 'P7G5MoH6A8NuMgdWC2GU1aiN'
-SECRET_KEY = 'EAByZyEt1Gp4HxiKGBgsG9ggKjr4I16F'
+SECRET_KEY = st.secrets["aip"]["api_key"]
+SECRET_KEY = st.secrets["aip"]["secret_key"]
 MAX_EVID = 10
 
 # 初始化百度API的客户端
