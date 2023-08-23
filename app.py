@@ -81,7 +81,7 @@ elif sidebar_option == "和 AI 交流":
     if st.sidebar.button("发送"):
         analysis_data = None
         if load_case_details:
-            analysis_data = retrieve_analysis_results(current_case_id)[:-1] # remove it later
+            analysis_data = retrieve_analysis_results(current_case_id)
         chatbot.add_user_message(user_input, analysis_data=analysis_data, load_case=load_case_details)
         bot_response = chatbot.get_bot_response()
 
