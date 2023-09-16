@@ -11,6 +11,19 @@ MAX_EVID = 10
 client_speech = AipSpeech(APP_ID, API_KEY, SECRET_KEY)
 client_ocr = AipOcr(APP_ID, API_KEY, SECRET_KEY)
 
+st.markdown(
+    """
+    <style>
+    .css-1jc7ptx, .e1ewe7hr3, .viewerBadge_container__1QSob,
+    .styles_viewerBadge__1yB5_, .viewerBadge_link__1S137,
+    .viewerBadge_text__1JaDK {
+        display: none;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 case_analyzer = CaseAnalyzer()
 evidence_analyzer = EvidenceAnalyzer()
 similar_case_finder = SimilarCaseFinder()
